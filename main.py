@@ -7,7 +7,6 @@ from tensorflow.keras.datasets import fashion_mnist
 from PIL import Image
 import io
 
-# Load and prepare Fashion MNIST data
 @st.cache_data
 def load_data():
     (train_images, _), _ = fashion_mnist.load_data()
@@ -15,7 +14,6 @@ def load_data():
     train_flat = train_images.reshape(len(train_images), -1)
     return train_images, train_flat
 
-# Perform PCA and clustering
 @st.cache_data
 def fit_models(train_flat):
     pca = PCA(n_components=2)
@@ -29,7 +27,6 @@ pca, kmeans, train_2d, cluster_labels = fit_models(train_flat)
 
 st.title("Fashion MNIST Clustering Explorer")
 
-# Upload or select image
 option = st.radio("Choose Input Method:", ["Upload Image", "Select Sample Image"])
 
 if option == "Upload Image":
@@ -45,16 +42,13 @@ if 'user_image' in locals():
     st.image(user_image, caption="Selected Image", width=150)
     user_flat = user_image.reshape(1, -1)
 
-    # Predict cluster
     cluster_id = kmeans.predict(user_flat)[0]
     st.markdown(f"### Predicted Cluster: {cluster_id}")
 
-    # Find most similar image in dataset (based on Euclidean distance)
     dists = np.linalg.norm(train_flat - user_flat, axis=1)
     top_idx = np.argmin(dists)
     st.image(train_images[top_idx], caption="Most Similar Item", width=150)
 
-    # PCA projection
     user_2d = pca.transform(user_flat)
     fig, ax = plt.subplots(figsize=(8, 6))
     scatter = ax.scatter(train_2d[:, 0], train_2d[:, 1], c=cluster_labels, cmap='tab10', alpha=0.3, s=10)
